@@ -13,6 +13,36 @@ const app = express();
 // this is how we must do it when working with rest apis
 app.use(bodyparser.json());
 
+// preventing the CORS error
+// CORS error occurs everytime we are working with a client and a server on different domains
+// so if my server is on localhost:8080 and my client is on localhost:3000
+// we will get a CORS error
+// this is a security feature checked by the browser in order to prevent cross origin requests
+// however, this is exactly what we want to do when dealing with rest apis
+// think about it: if you want to use google maps api, you get a response with no errors, right?
+// and your application is not hosted along with the google api on the google server, right
+// this is because google api set the headers below
+// to allow every application to request their api
+app.use((req, res, next) => {
+    // here we are allowing access to the desired origins
+    // you can use *, meaning you are allowing every origin
+    // or you could specify localhost:3000 and www.yoursite.com instead, for example
+    // if you want to allow more than one origin, just separate them using comma
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    // here we are allowing access to the desired methods
+    // you can use *, meaning you are allowing every method
+    // or you could specify only GET and POST methods instead, for example
+    // if you want to allow more than one method, just separate them using comma
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
+    // here we are allowing access to the desired headers
+    // you can use *, meaning you are allowing every header
+    // you could specify only Content-Type and Authorization headers instead, for example
+    // if you want to allow more than one method, just separate them using comma
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type', 'Authorization');
+    // finally, you have to call next() so that the request can continue to the following middlewares
+    next();
+});
+
 app.use('/feed', feedRoutes);
 
 app.listen(8080);
