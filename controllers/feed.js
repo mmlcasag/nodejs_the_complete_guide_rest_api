@@ -21,9 +21,14 @@ module.exports.postPost = (req, res, next) => {
     res.status(201).json({
         message: 'Post created successfully',
         post: { 
-            id: new Date().toISOString(),
+            _id: new Date().toISOString(),
             title: title,
-            content: content
+            content: content,
+            imageUrl: 'images/rubber_duck.jpg',
+            creator: {
+                name: 'Márcio Luís Casagrande'
+            },
+            createdAt: new Date()
         }
     });
 }
