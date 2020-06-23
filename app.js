@@ -33,7 +33,7 @@ app.use((req, res, next) => {
     // you can use *, meaning you are allowing every method
     // or you could specify only GET and POST methods instead, for example
     // if you want to allow more than one method, just separate them using comma
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     // here we are allowing access to the desired headers
     // you can use *, meaning you are allowing every header
     // you could specify only Content-Type and Authorization headers instead, for example
@@ -46,3 +46,11 @@ app.use((req, res, next) => {
 app.use('/feed', feedRoutes);
 
 app.listen(8080);
+
+// how do we test this?
+// well, we can use postman, or insomnia and i will add
+// the exported file with the endpoints set up in the tests folder
+// and we can also mock a frontent application
+// just to test these functionalities
+// we will use codepen.io for this
+// i will also add the .html and the .js file in the tests folder
