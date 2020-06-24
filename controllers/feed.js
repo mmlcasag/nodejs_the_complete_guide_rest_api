@@ -21,10 +21,10 @@ module.exports.postPost = (req, res, next) => {
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
-        return res.status(422).json({
-            message: 'Validation failed, entered data is incorrect',
-            errors: errors.array()
-        })
+        const error = new Error('Validation failed, entered data is incorrect');
+        error.status = 422;
+        error.details = errors.array();
+        throw error;
     }
 
     const title = req.body.title;
@@ -41,14 +41,18 @@ module.exports.postPost = (req, res, next) => {
 
     post.save()
         .then(result => {
-            console.log(result);
-            
             res.status(201).json({
                 message: 'Post created successfully',
                 post: result
             });
         })
         .catch(err => {
-            console.log(err);
+            if (!err.status) {
+                err.status = 500;
+            }
+            if (!err.details) {
+                err.details = "On postPost when trying to save a post"
+            }
+            next(err);
         });
 }

@@ -1,12 +1,15 @@
 const express = require('express');
 const bodyparser = require('body-parser');
 const mongoose = require('mongoose');
+const path = require('path');
 
 const feedRoutes = require('./routes/feed');
 
 const app = express();
 
 console.log('Launching the application');
+
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // using bodyparses like we previously did
 // means we are expecting to handle application/x-www-form-urlencoded requests
@@ -47,6 +50,16 @@ app.use((req, res, next) => {
 });
 
 app.use('/feed', feedRoutes);
+
+app.use((error, req, res, next) => {
+    console.log(error);
+    
+    const status = error.status || 500;
+    const message = error.message;
+    const details = error.details || null;
+    
+    res.status(status).json({ message: message, details: details });
+});
 
 mongoose.connect('mongodb+srv://admin:admin@mmlcasag-cvtew.mongodb.net/udemy-rest-api', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
