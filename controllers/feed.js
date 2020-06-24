@@ -61,14 +61,18 @@ module.exports.postPost = (req, res, next) => {
     if (!errors.isEmpty()) {
         throwNewError('Validation failed, entered data is incorrect', 422, errors.array());
     }
-    
+    if (!req.file) {
+        throwNewError('Validation failed, image is required', 422, 'Image is required');
+    }
+
     const title = req.body.title;
     const content = req.body.content;
+    const imageUrl = req.file.path.replace("\\" ,"/");
     
     const post = new Post({
         title: title,
         content: content,
-        imageUrl: 'images/rubber_duck.jpg',
+        imageUrl: imageUrl,
         creator: { 
             name: 'Márcio Luís Casagrande'
         }

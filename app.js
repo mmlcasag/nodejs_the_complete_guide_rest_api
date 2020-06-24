@@ -1,7 +1,9 @@
+const path = require('path');
+
 const express = require('express');
 const bodyparser = require('body-parser');
 const mongoose = require('mongoose');
-const path = require('path');
+const multer = require('multer');
 
 const feedRoutes = require('./routes/feed');
 
@@ -9,7 +11,31 @@ const app = express();
 
 console.log('Launching the application');
 
-app.use('/images', express.static(path.join(__dirname, 'images')));
+const storage = multer.diskStorage({
+    destination: (req, file, callback) => {
+        // first parameter null means no errors
+        // second parameter means the uploaded files must be stored in the images folder
+        callback(null, 'images');
+    },
+    filename: (req, file, callback) => {
+        // first parameter null means no errors
+        // second parameter means the uploaded files name convention
+        callback(null, file.originalname);
+    }
+});
+
+// here we specify the file extensions we want to allow
+const fileFilter = (req, file, callback) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+        // first parameter null means no errors
+        // second parameter true means allow these extensions
+        callback(null, true);
+    } else {
+        // first parameter null means no errors
+        // second parameter false means do not allow all other extensions
+        callback(null, false);
+    }
+}
 
 // using bodyparses like we previously did
 // means we are expecting to handle application/x-www-form-urlencoded requests
@@ -18,6 +44,12 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 // this however means we are expecting to handle application/json requests
 // this is how we must do it when working with rest apis
 app.use(bodyparser.json());
+
+// registering and configuring multer on the application
+app.use(multer({ storage: storage, fileFilter: fileFilter }).single('image'));
+
+// registering the images folder as a static folder
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // preventing the CORS error
 // CORS error occurs everytime we are working with a client and a server on different domains
