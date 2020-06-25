@@ -4,31 +4,7 @@ const fs = require('fs');
 const { validationResult } = require("express-validator");
 
 const Post = require('../models/post');
-
-//////////////////////////////////////////////////////////////////////////////////////////
-
-const handleError = (err, status, details) => {
-    if (!err.status) {
-        err.status = status;
-    }
-    if (!err.details) {
-        err.details = details;
-    }
-    next(err);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-
-const throwNewError = (message, status, details) => {
-    const error = new Error(message);
-    if (status) {
-        error.status = status;
-    }
-    if (details) {
-        error.details = details
-    }
-    throw error;
-}
+const errorUtils = require('../utils/error');
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +13,7 @@ const clearImage = filePath => {
 
     fs.unlink(filePath, err => {
         if (err) {
-            throwNewError('Error while trying to delete image', 500, err);
+            errorUtils.throwNewError('Error while trying to delete image', 500, err);
         }
     });
 }
@@ -66,7 +42,7 @@ module.exports.getPosts = (req, res, next) => {
             });
         })
         .catch(err => {
-            handleError(err, 500, 'On getPosts when trying to find all the posts');
+            errorUtils.handleError(err, 500, 'On getPosts when trying to find all the posts');
         });
 };
 
@@ -78,7 +54,7 @@ module.exports.getPost = (req, res, next) => {
     Post.findById(postId)
         .then(post => {
             if (!post) {
-                throwNewError('Could not find post', 404);
+                errorUtils.throwNewError('Could not find post', 404);
             }
             
             res.status(200).json({
@@ -87,7 +63,7 @@ module.exports.getPost = (req, res, next) => {
             });
         })
         .catch(err => {
-            handleError(err, 500, 'On getPost when trying to findById a post');
+            errorUtils.handleError(err, 500, 'On getPost when trying to findById a post');
         });
 }
 
@@ -97,10 +73,10 @@ module.exports.postPost = (req, res, next) => {
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
-        throwNewError('Validation failed, entered data is incorrect', 422, errors.array());
+        errorUtils.throwNewError('Validation failed, entered data is incorrect', 422, errors.array());
     }
     if (!req.file) {
-        throwNewError('Validation failed, image is required', 422, 'Image is required');
+        errorUtils.throwNewError('Validation failed, image is required', 422, 'Image is required');
     }
 
     const title = req.body.title;
@@ -124,7 +100,7 @@ module.exports.postPost = (req, res, next) => {
             });
         })
         .catch(err => {
-            handleError(err, 500, 'On postPost when trying to save a post');
+            errorUtils.handleError(err, 500, 'On postPost when trying to save a post');
         });
 }
 
@@ -134,7 +110,7 @@ module.exports.putPost = (req, res, next) => {
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
-        throwNewError('Validation failed, entered data is incorrect', 422, errors.array());
+        errorUtils.throwNewError('Validation failed, entered data is incorrect', 422, errors.array());
     }
     
     const postId  = req.params.postId;
@@ -150,13 +126,13 @@ module.exports.putPost = (req, res, next) => {
     }
 
     if (!imageUrl) {
-        throwNewError('Validation failed, image is required', 422, 'Image is required');
+        errorUtils.throwNewError('Validation failed, image is required', 422, 'Image is required');
     }
 
     Post.findById(postId)
         .then(post => {
             if (!post) {
-                throwNewError('Could not find post', 404);
+                errorUtils.throwNewError('Could not find post', 404);
             }
 
             // if the image changed...
@@ -178,7 +154,7 @@ module.exports.putPost = (req, res, next) => {
             });
         })
         .catch(err => {
-            handleError(err, 500, 'On putPost when trying to findById a post');
+            errorUtils.handleError(err, 500, 'On putPost when trying to findById a post');
         });
 }
 
@@ -190,7 +166,7 @@ module.exports.deletePost = (req, res, next) => {
     Post.findById(postId)
         .then(post => {
             if (!post) {
-                throwNewError('Could not find post', 404);
+                errorUtils.throwNewError('Could not find post', 404);
             }
 
             // #1 TODO: check logged in user
@@ -207,6 +183,6 @@ module.exports.deletePost = (req, res, next) => {
             });
         })
         .catch(err => {
-            handleError(err, 500, 'On deletePost when trying to findById a post');
+            errorUtils.handleError(err, 500, 'On deletePost when trying to findById a post');
         });
 }
