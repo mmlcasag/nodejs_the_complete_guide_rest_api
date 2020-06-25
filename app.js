@@ -84,11 +84,11 @@ app.use((req, res, next) => {
 app.use('/feed', feedRoutes);
 
 app.use((error, req, res, next) => {
-    console.log(error);
-    
     const status = error.status || 500;
     const message = error.message;
     const details = error.details || null;
+    
+    console.log({ message: message, details: details });
     
     res.status(status).json({ message: message, details: details });
 });
