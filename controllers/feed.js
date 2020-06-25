@@ -53,6 +53,7 @@ module.exports.getPosts = (req, res, next) => {
         .countDocuments()
         .then(countPosts => {
             totalItems = countPosts;
+            
             return Post.find()
                 .skip((curPage - 1) * perPage)
                 .limit(perPage)

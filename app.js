@@ -5,6 +5,7 @@ const bodyparser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
 
+const authRoutes = require('./routes/auth');
 const feedRoutes = require('./routes/feed');
 
 const app = express();
@@ -81,6 +82,7 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use('/auth', authRoutes);
 app.use('/feed', feedRoutes);
 
 app.use((error, req, res, next) => {
