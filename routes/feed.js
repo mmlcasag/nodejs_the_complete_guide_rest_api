@@ -9,5 +9,6 @@ router.get('/posts', feedController.getPosts);
 router.post('/post', feedValidator.postPostValidator, feedController.postPost);
 router.get('/post/:postId', feedController.getPost);
 router.put('/post/:postId', feedValidator.putPostValidator, feedController.putPost);
+router.delete('/post/:postId', feedController.deletePost);
 
 module.exports = router;

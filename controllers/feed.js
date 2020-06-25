@@ -155,7 +155,7 @@ module.exports.putPost = (req, res, next) => {
             post.title = title;
             post.content = content;
             post.imageUrl = imageUrl;
-            
+
             return post.save();
         })
         .then(result => {
@@ -170,3 +170,30 @@ module.exports.putPost = (req, res, next) => {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+
+module.exports.deletePost = (req, res, next) => {
+    const postId = req.params.postId;
+
+    Post.findById(postId)
+        .then(post => {
+            if (!post) {
+                throwNewError('Could not find post', 404);
+            }
+
+            // #1 TODO: check logged in user
+
+            // #2 delete the post image
+            clearImage(post.imageUrl);
+            
+            // #3 delete the post
+            return Post.findByIdAndRemove(postId);
+        })
+        .then(result => {
+            res.status(200).json({
+                message: 'Post deleted successfully'
+            });
+        })
+        .catch(err => {
+            handleError(err, 500, 'On deletePost when trying to findById a post');
+        });
+}
