@@ -148,7 +148,9 @@ module.exports.putPost = (req, res, next) => {
             if (!post) {
                 errorUtils.throwNewError('Could not find post', 404);
             }
-
+            if (post.creator.toString() !== req.userId) {
+                errorUtils.throwNewError('Authorization failed', 403, 'Users can only update their own posts');
+            }
             // if the post had an image and the image changed...
             if (imageUrl !== post.imageUrl) {
                 // ... i want to get rid of the previous image
@@ -183,8 +185,11 @@ module.exports.deletePost = (req, res, next) => {
                 errorUtils.throwNewError('Could not find post', 404);
             }
             
-            // #1 TODO: check logged in user
-
+            // #1 check if user has permission to do so
+            if (post.creator.toString() !== req.userId) {
+                errorUtils.throwNewError('Authorization failed', 403, 'Users can only delete their own posts');
+            }
+            
             // #2 delete the post image
             clearImage(post.imageUrl);
             
