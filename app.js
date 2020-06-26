@@ -77,7 +77,7 @@ app.use((req, res, next) => {
     // you can use *, meaning you are allowing every header
     // you could specify only Content-Type and Authorization headers instead, for example
     // if you want to allow more than one method, just separate them using comma
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type', 'Authorization');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     // finally, you have to call next() so that the request can continue to the following middlewares
     next();
 });

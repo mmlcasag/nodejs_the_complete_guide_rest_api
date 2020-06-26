@@ -9,13 +9,15 @@ const errorUtils = require('../utils/error');
 //////////////////////////////////////////////////////////////////////////////////////////
 
 const clearImage = filePath => {
-    filePath = path.join(__dirname, '..', filePath);
+    if (filePath) {
+        filePath = path.join(__dirname, '..', filePath);
 
-    fs.unlink(filePath, err => {
-        if (err) {
-            errorUtils.throwNewError('Error while trying to delete image', 500, err);
-        }
-    });
+        fs.unlink(filePath, err => {
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -75,14 +77,18 @@ module.exports.postPost = (req, res, next) => {
     if (!errors.isEmpty()) {
         errorUtils.throwNewError('Validation failed, entered data is incorrect', 422, errors.array());
     }
-    if (!req.file) {
-        errorUtils.throwNewError('Validation failed, image is required', 422, 'Image is required');
-    }
-
+    
     const title = req.body.title;
     const content = req.body.content;
-    const imageUrl = req.file.path.replace("\\" ,"/");
     
+    let imageUrl;
+
+    if (req.file) {
+        imageUrl = req.file.path.replace("\\" ,"/");
+    } else {
+        imageUrl = req.body.imageUrl;
+    }
+
     const post = new Post({
         title: title,
         content: content,
@@ -122,11 +128,7 @@ module.exports.putPost = (req, res, next) => {
     if (req.file) {
         imageUrl = req.file.path.replace("\\" ,"/");
     } else {
-        imageUrl = req.body.image;
-    }
-
-    if (!imageUrl) {
-        errorUtils.throwNewError('Validation failed, image is required', 422, 'Image is required');
+        imageUrl = req.body.imageUrl;
     }
 
     Post.findById(postId)
@@ -135,9 +137,9 @@ module.exports.putPost = (req, res, next) => {
                 errorUtils.throwNewError('Could not find post', 404);
             }
 
-            // if the image changed...
+            // if the post had an image and the image changed...
             if (imageUrl !== post.imageUrl) {
-                // ... i want to get rid of the old image
+                // ... i want to get rid of the previous image
                 clearImage(post.imageUrl);
             }
             
@@ -168,7 +170,7 @@ module.exports.deletePost = (req, res, next) => {
             if (!post) {
                 errorUtils.throwNewError('Could not find post', 404);
             }
-
+            
             // #1 TODO: check logged in user
 
             // #2 delete the post image
