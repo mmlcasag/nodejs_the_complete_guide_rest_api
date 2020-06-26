@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { validationResult } = require("express-validator");
 
 const User = require('../models/user');
@@ -34,7 +35,7 @@ module.exports.postSignup = (req, res, next) => {
             });
         })
         .catch(err => {
-            errorUtils.handleError(err, 500, 'On postSignUp when bcrypting the password');
+            next(errorUtils.handleError(err, 500, 'On postSignUp when bcrypting the password'));
         });
 }
 
@@ -64,10 +65,21 @@ module.exports.postLogin = (req, res, next) => {
                 errorUtils.throwNewError('Authentication failed', 401, 'Invalid password');
             }
             
-            // TODO: generate token
+            // generating the jwt token
+            // npm install jsonwebtoken --save
+            // 1st parameter: the information we want to store hashed in the token
+            // 2nd parameter: the secret key used to encrypt the hash
+            // 3rd parameter: the expiration time
+            const token = jwt.sign({ userId: localUser._id.toString(), email: localUser.email }, 'super-ubber-dubber-secret-key', { expiresIn: '1h' });
+
+            res.status(200).json({
+                message: 'User authenticated successfully',
+                token: token,
+                userId: localUser._id.toString()
+            });
         })
         .catch(err => {
-            errorUtils.handleError(err, 500, 'On postLogin when trying to findOne user');
+            next(errorUtils.handleError(err, 500, 'On postLogin when trying to findOne user'));
         });
 }
 

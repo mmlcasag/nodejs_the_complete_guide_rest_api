@@ -5,7 +5,7 @@ module.exports.handleError = (err, status, details) => {
     if (!err.details) {
         err.details = details;
     }
-    next(err);
+    return err;
 }
 
 module.exports.throwNewError = (message, status, details) => {

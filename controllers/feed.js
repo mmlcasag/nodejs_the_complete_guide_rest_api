@@ -42,7 +42,7 @@ module.exports.getPosts = (req, res, next) => {
             });
         })
         .catch(err => {
-            errorUtils.handleError(err, 500, 'On getPosts when trying to find all the posts');
+            next(errorUtils.handleError(err, 500, 'On getPosts when trying to find all the posts'));
         });
 };
 
@@ -63,7 +63,7 @@ module.exports.getPost = (req, res, next) => {
             });
         })
         .catch(err => {
-            errorUtils.handleError(err, 500, 'On getPost when trying to findById a post');
+            next(errorUtils.handleError(err, 500, 'On getPost when trying to findById a post'));
         });
 }
 
@@ -100,7 +100,7 @@ module.exports.postPost = (req, res, next) => {
             });
         })
         .catch(err => {
-            errorUtils.handleError(err, 500, 'On postPost when trying to save a post');
+            next(errorUtils.handleError(err, 500, 'On postPost when trying to save a post'));
         });
 }
 
@@ -154,7 +154,7 @@ module.exports.putPost = (req, res, next) => {
             });
         })
         .catch(err => {
-            errorUtils.handleError(err, 500, 'On putPost when trying to findById a post');
+            next(errorUtils.handleError(err, 500, 'On putPost when trying to findById a post'));
         });
 }
 
@@ -183,6 +183,6 @@ module.exports.deletePost = (req, res, next) => {
             });
         })
         .catch(err => {
-            errorUtils.handleError(err, 500, 'On deletePost when trying to findById a post');
+            next(errorUtils.handleError(err, 500, 'On deletePost when trying to findById a post'));
         });
 }
