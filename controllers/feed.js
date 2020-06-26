@@ -4,6 +4,7 @@ const fs = require('fs');
 const { validationResult } = require("express-validator");
 
 const Post = require('../models/post');
+const User = require('../models/user');
 const errorUtils = require('../utils/error');
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -93,16 +94,27 @@ module.exports.postPost = (req, res, next) => {
         title: title,
         content: content,
         imageUrl: imageUrl,
-        creator: { 
-            name: 'Márcio Luís Casagrande'
-        }
+        creator: req.userId
     });
 
+    let localUser;
     post.save()
+        .then(result => {
+            return User.findById(req.userId);
+        })
+        .then(user => {
+            localUser = user;
+            user.posts.push(post);
+            return user.save();
+        })
         .then(result => {
             res.status(201).json({
                 message: 'Post created successfully',
-                post: result
+                post: post,
+                creator: {
+                    _id: localUser._id,
+                    name: localUser.name
+                }
             });
         })
         .catch(err => {
