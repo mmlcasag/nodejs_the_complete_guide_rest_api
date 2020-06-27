@@ -31,7 +31,11 @@ module.exports.getPosts = async (req, res, next) => {
     
     try {
         const totalItems = await Post.find().countDocuments();
-        const posts = await Post.find().populate('creator').skip((curPage - 1) * perPage).limit(perPage);
+        const posts = await Post.find()
+            .populate('creator')
+            .sort({ createdAt: -1}) // order by createdAt desc
+            .skip((curPage - 1) * perPage)
+            .limit(perPage);
         
         res.status(200).json({ 
             message: 'Posts fetched successfully', 
