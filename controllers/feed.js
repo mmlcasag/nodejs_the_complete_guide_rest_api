@@ -79,8 +79,14 @@ module.exports.postPost = async (req, res, next) => {
 
     if (req.file) {
         imageUrl = req.file.path.replace("\\" ,"/");
-    } else {
+    } else if (req.body.image) {
+        imageUrl = req.body.image;
+    } else if (req.body.imageUrl) {
         imageUrl = req.body.imageUrl;
+    }
+    
+    if (!imageUrl) {
+        errorUtils.throwNewError('Validation failed, image is required', 422, 'Image is required');
     }
 
     try {
