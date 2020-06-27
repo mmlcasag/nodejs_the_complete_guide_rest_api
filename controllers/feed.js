@@ -162,13 +162,13 @@ module.exports.putPost = async (req, res, next) => {
     }
 
     try {
-        const post = await Post.findById(postId);
+        const post = await Post.findById(postId).populate('creator');
         
         if (!post) {
             errorUtils.throwNewError('Could not find post', 404);
         }
 
-        if (post.creator.toString() !== req.userId) {
+        if (post.creator._id.toString() !== req.userId) {
             errorUtils.throwNewError('Authorization failed', 403, 'Users can only update their own posts');
         }
         
@@ -181,6 +181,14 @@ module.exports.putPost = async (req, res, next) => {
         post.imageUrl = imageUrl;
 
         await post.save();
+
+        // we also want to use websockets after updating posts
+        // here we didn't need to tweak our post object
+        // because it already has the populate() creator on the loadById
+        io.getIO().emit('posts', {
+            action: 'update',
+            post: post
+        });
 
         return res.status(200).json({
             message: 'Post updated successfully',
