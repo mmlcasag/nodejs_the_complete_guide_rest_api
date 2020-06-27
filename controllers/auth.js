@@ -61,14 +61,9 @@ module.exports.postLogin = async (req, res, next) => {
         if (!doMatch) {
             errorUtils.throwNewError('Authentication failed', 401, 'Invalid password');
         }
-                
-        // generating the jwt token
-        // npm install jsonwebtoken --save
-        // 1st parameter: the information we want to store hashed in the token
-        // 2nd parameter: the secret key used to encrypt the hash
-        // 3rd parameter: the expiration time
+        
         const token = jwt.sign({ userId: user._id.toString(), email: user.email }, 'super-ubber-dubber-secret-key', { expiresIn: '1h' });
-
+        
         res.status(200).json({
             message: 'User authenticated successfully',
             token: token,

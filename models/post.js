@@ -20,7 +20,7 @@ const postSchema = new Schema({
         required: true
     }  
 },
-{ timestamps: true } // automatically creates and manages createdAt and updatedAt attributes
+{ timestamps: true }
 );
 
 module.exports = mongoose.model('Post', postSchema);

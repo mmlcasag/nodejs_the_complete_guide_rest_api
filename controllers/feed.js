@@ -15,7 +15,8 @@ const clearImage = filePath => {
 
         fs.unlink(filePath, err => {
             if (err) {
-                throw new Error('There was an error trying to delete the image');
+                // throw new Error('There was an error trying to delete the image');
+                console.log(err);
             }
         });
     }
@@ -23,21 +24,11 @@ const clearImage = filePath => {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-// before version 14.3 of nodejs you could only use await inside a function marked as async
-// after version 14.3 of nodejs you can await asynchronous code outside of a function
-// this is called top-level "await"
-
-//////////////////////////////////////////////////////////////////////////////////////////
-
-// you have to specify in the function signature that this is an asynchronous function
 module.exports.getPosts = async (req, res, next) => {
     const curPage = req.query.page || 1;
     const perPage = 2;
     
     try {
-        // then, whenever you have asynchronous code, you can use the await keyword
-        // then, javascript will run your code just the way it used to do
-        // with the promises and all that stuff behind the scenes
         const totalItems = await Post.find().countDocuments();
         const posts = await Post.find().populate('creator').skip((curPage - 1) * perPage).limit(perPage);
         
@@ -138,7 +129,9 @@ module.exports.putPost = async (req, res, next) => {
 
     if (req.file) {
         imageUrl = req.file.path.replace("\\" ,"/");
-    } else {
+    } else if (req.body.image) {
+        imageUrl = req.body.image;
+    } else if (req.body.imageUrl) {
         imageUrl = req.body.imageUrl;
     }
 

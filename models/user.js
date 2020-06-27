@@ -24,7 +24,7 @@ const userSchema = new Schema({
         ref: 'Post'
     }]
 },
-{ timestamps: true } // automatically creates and manages createdAt and updatedAt attributes
+{ timestamps: true }
 );
 
 module.exports = mongoose.model('User', userSchema);
