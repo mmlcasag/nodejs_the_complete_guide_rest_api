@@ -115,7 +115,13 @@ module.exports.postPost = async (req, res, next) => {
         // and then you define the content you want to send, i chose an object with the post and also an action
         io.getIO().emit('posts', {
             action: 'create',
-            post: post
+            post: { 
+                ...post._doc,
+                creator: {
+                    _id: user._id,
+                    name: user.name
+                }
+            }
         });
         // now we need to adjust our client-side code to handle new messages on this posts channel
 
