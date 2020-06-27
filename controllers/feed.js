@@ -229,6 +229,13 @@ module.exports.deletePost = async (req, res, next) => {
         
         await user.save();
         
+        // we also want to use websockets after deleting posts
+        // here since we are deleting we are not passing the entire post object but rather just the id
+        io.getIO().emit('posts', {
+            action: 'delete',
+            post: postId
+        });
+        
         res.status(200).json({
             message: 'Post deleted successfully'
         });
