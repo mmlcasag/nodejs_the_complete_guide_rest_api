@@ -39,7 +39,7 @@ module.exports.getPosts = async (req, res, next) => {
         // then, javascript will run your code just the way it used to do
         // with the promises and all that stuff behind the scenes
         const totalItems = await Post.find().countDocuments();
-        const posts = await Post.find().skip((curPage - 1) * perPage).limit(perPage);
+        const posts = await Post.find().populate('creator').skip((curPage - 1) * perPage).limit(perPage);
         
         res.status(200).json({ 
             message: 'Posts fetched successfully', 
@@ -57,7 +57,7 @@ module.exports.getPost = async (req, res, next) => {
     const postId = req.params.postId;
 
     try {
-        const post = await Post.findById(postId);
+        const post = await Post.findById(postId).populate('creator');
         
         if (!post) {
             errorUtils.throwNewError('Could not find post', 404);
