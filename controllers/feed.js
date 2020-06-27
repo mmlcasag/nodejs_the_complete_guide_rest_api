@@ -15,7 +15,7 @@ const clearImage = filePath => {
 
         fs.unlink(filePath, err => {
             if (err) {
-                console.log(err);
+                throw new Error('There was an error trying to delete the image');
             }
         });
     }
@@ -53,28 +53,28 @@ module.exports.getPosts = async (req, res, next) => {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports.getPost = (req, res, next) => {
+module.exports.getPost = async (req, res, next) => {
     const postId = req.params.postId;
 
-    Post.findById(postId)
-        .then(post => {
-            if (!post) {
-                errorUtils.throwNewError('Could not find post', 404);
-            }
-            
-            res.status(200).json({
-                message: 'Post fetched successfully',
-                post: post
-            });
-        })
-        .catch(err => {
-            next(errorUtils.handleError(err, 500, 'On getPost when trying to findById a post'));
+    try {
+        const post = await Post.findById(postId);
+        
+        if (!post) {
+            errorUtils.throwNewError('Could not find post', 404);
+        }
+        
+        res.status(200).json({
+            message: 'Post fetched successfully',
+            post: post
         });
+    } catch (err) {
+        next(errorUtils.handleError(err, 500, 'On getPost when trying to findById a post'));
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports.postPost = (req, res, next) => {
+module.exports.postPost = async (req, res, next) => {
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
@@ -92,41 +92,38 @@ module.exports.postPost = (req, res, next) => {
         imageUrl = req.body.imageUrl;
     }
 
-    const post = new Post({
-        title: title,
-        content: content,
-        imageUrl: imageUrl,
-        creator: req.userId
-    });
-
-    let localUser;
-    post.save()
-        .then(result => {
-            return User.findById(req.userId);
-        })
-        .then(user => {
-            localUser = user;
-            user.posts.push(post);
-            return user.save();
-        })
-        .then(result => {
-            res.status(201).json({
-                message: 'Post created successfully',
-                post: post,
-                creator: {
-                    _id: localUser._id,
-                    name: localUser.name
-                }
-            });
-        })
-        .catch(err => {
-            next(errorUtils.handleError(err, 500, 'On postPost when trying to save a post'));
+    try {
+        const post = new Post({
+            title: title,
+            content: content,
+            imageUrl: imageUrl,
+            creator: req.userId
         });
+
+        await post.save();
+
+        const user = await User.findById(req.userId);
+        
+        user.posts.push(post);
+
+        await user.save();
+        
+        res.status(201).json({
+            message: 'Post created successfully',
+            post: post,
+            creator: {
+                _id: user._id,
+                name: user.name
+            }
+        });
+    } catch (err) {
+        next(errorUtils.handleError(err, 500, 'On postPost when trying to save a post'));
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports.putPost = (req, res, next) => {
+module.exports.putPost = async (req, res, next) => {
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
@@ -145,72 +142,66 @@ module.exports.putPost = (req, res, next) => {
         imageUrl = req.body.imageUrl;
     }
 
-    Post.findById(postId)
-        .then(post => {
-            if (!post) {
-                errorUtils.throwNewError('Could not find post', 404);
-            }
-            if (post.creator.toString() !== req.userId) {
-                errorUtils.throwNewError('Authorization failed', 403, 'Users can only update their own posts');
-            }
-            // if the post had an image and the image changed...
-            if (imageUrl !== post.imageUrl) {
-                // ... i want to get rid of the previous image
-                clearImage(post.imageUrl);
-            }
-            
-            post.title = title;
-            post.content = content;
-            post.imageUrl = imageUrl;
+    try {
+        const post = await Post.findById(postId);
+        
+        if (!post) {
+            errorUtils.throwNewError('Could not find post', 404);
+        }
 
-            return post.save();
-        })
-        .then(result => {
-            return res.status(200).json({
-                message: 'Post updated successfully',
-                post: result
-            });
-        })
-        .catch(err => {
-            next(errorUtils.handleError(err, 500, 'On putPost when trying to findById a post'));
+        if (post.creator.toString() !== req.userId) {
+            errorUtils.throwNewError('Authorization failed', 403, 'Users can only update their own posts');
+        }
+        
+        if (imageUrl !== post.imageUrl) {
+            clearImage(post.imageUrl);
+        }
+        
+        post.title = title;
+        post.content = content;
+        post.imageUrl = imageUrl;
+
+        await post.save();
+
+        return res.status(200).json({
+            message: 'Post updated successfully',
+            post: post
         });
+    } catch (err) {
+        next(errorUtils.handleError(err, 500, 'On putPost when trying to findById a post'));
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports.deletePost = (req, res, next) => {
+module.exports.deletePost = async (req, res, next) => {
     const postId = req.params.postId;
 
-    Post.findById(postId)
-        .then(post => {
-            if (!post) {
-                errorUtils.throwNewError('Could not find post', 404);
-            }
-            
-            // #1 check if user has permission to do so
-            if (post.creator.toString() !== req.userId) {
-                errorUtils.throwNewError('Authorization failed', 403, 'Users can only delete their own posts');
-            }
-            
-            // #2 delete the post image
-            clearImage(post.imageUrl);
-            
-            // #3 delete the post
-            return Post.findByIdAndRemove(postId);
-        })
-        .then(result => {
-            return User.findById(req.userId);
-        })
-        .then(user => {
-            user.posts.pull(postId);
-            return user.save();
-        })
-        .then(result => {
-            res.status(200).json({
-                message: 'Post deleted successfully'
-            });
-        })
-        .catch(err => {
-            next(errorUtils.handleError(err, 500, 'On deletePost when trying to findById a post'));
+    try {
+        const post = await Post.findById(postId);
+        
+        if (!post) {
+            errorUtils.throwNewError('Could not find post', 404);
+        }
+        
+        if (post.creator.toString() !== req.userId) {
+            errorUtils.throwNewError('Authorization failed', 403, 'Users can only delete their own posts');
+        }
+        
+        clearImage(post.imageUrl);
+        
+        await Post.findByIdAndRemove(postId);
+        
+        const user = await User.findById(req.userId);
+
+        user.posts.pull(postId);
+        
+        await user.save();
+        
+        res.status(200).json({
+            message: 'Post deleted successfully'
         });
+    } catch(err) {
+        next(errorUtils.handleError(err, 500, 'On deletePost when trying to findById a post'));
+    }
 }
