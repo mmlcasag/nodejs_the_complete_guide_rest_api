@@ -67,7 +67,7 @@ mongoose.connect('mongodb+srv://admin:admin@mmlcasag-cvtew.mongodb.net/udemy-res
         // the http server defined above
         // so how do we do that?
         // we need to create a const and pass it as an argument to the socket.io
-        const io = require('socket.io')(server);
+        const io = require('./sockets').init(server);
         // this sets up socket.io
         // and here we can see that websockets builds up upon http
         // that's why we need to pass the http server as an argument
