@@ -23,30 +23,26 @@ const clearImage = filePath => {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports.getPosts = (req, res, next) => {
+// you have to specify in the function signature that this is an asynchronous function
+module.exports.getPosts = async (req, res, next) => {
     const curPage = req.query.page || 1;
     const perPage = 2;
-
-    let totalItems;
-    Post.find()
-        .countDocuments()
-        .then(countPosts => {
-            totalItems = countPosts;
-            
-            return Post.find()
-                .skip((curPage - 1) * perPage)
-                .limit(perPage)
-        })
-        .then(posts => {
-            res.status(200).json({ 
-                message: 'Posts fetched successfully', 
-                posts: posts,
-                totalItems: totalItems
-            });
-        })
-        .catch(err => {
-            next(errorUtils.handleError(err, 500, 'On getPosts when trying to find all the posts'));
+    
+    try {
+        // then, whenever you have asynchronous code, you can use the await keyword
+        // then, javascript will run your code just the way it used to do
+        // with the promises and all that stuff behind the scenes
+        const totalItems = await Post.find().countDocuments();
+        const posts = await Post.find().skip((curPage - 1) * perPage).limit(perPage);
+        
+        res.status(200).json({ 
+            message: 'Posts fetched successfully', 
+            posts: posts,
+            totalItems: totalItems
         });
+    } catch (err) {
+        next(errorUtils.handleError(err, 500, 'On getPosts when trying to find all the posts'));
+    }
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
