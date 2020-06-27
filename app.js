@@ -7,6 +7,7 @@ const multer = require('multer');
 
 const authRoutes = require('./routes/auth');
 const feedRoutes = require('./routes/feed');
+const userRoutes = require('./routes/user');
 
 const app = express();
 
@@ -84,6 +85,7 @@ app.use((req, res, next) => {
 
 app.use('/auth', authRoutes);
 app.use('/feed', feedRoutes);
+app.use('/user', userRoutes);
 
 app.use((error, req, res, next) => {
     const status = error.status || 500;

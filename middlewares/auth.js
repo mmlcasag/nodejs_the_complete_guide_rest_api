@@ -23,10 +23,11 @@ module.exports = (req, res, next) => {
     }
 
     let decodedToken;
+    
     try {
         decodedToken = jwt.verify(token, 'super-ubber-dubber-secret-key');
     } catch (err) {
-        errorUtils.throwNewError('Authorization failed', 500, 'Invalid token');
+        errorUtils.throwNewError('Authorization failed', 401, 'Invalid token');
     }
 
     if (!decodedToken) {
