@@ -23,6 +23,12 @@ const clearImage = filePath => {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
+// before version 14.3 of nodejs you could only use await inside a function marked as async
+// after version 14.3 of nodejs you can await asynchronous code outside of a function
+// this is called top-level "await"
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
 // you have to specify in the function signature that this is an asynchronous function
 module.exports.getPosts = async (req, res, next) => {
     const curPage = req.query.page || 1;
