@@ -8,6 +8,7 @@ const authMiddleware = require('../middlewares/auth');
 // so you can nest all respective tests inside that "folder"
 // this makes our code more readable and easier to understand
 describe('/middlewares/auth', function() {
+    
     // test #1
     it('should throw an error if no authorization header is present', function() {
         const req = {
@@ -107,4 +108,5 @@ describe('/middlewares/auth', function() {
         // we can restore to the original content
         jwt.verify.restore();
     });
+    
 });
