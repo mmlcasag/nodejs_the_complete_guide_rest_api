@@ -46,7 +46,7 @@ module.exports.postLogin = async (req, res, next) => {
         if (!errors.isEmpty()) {
             errorUtils.throwNewError('Validation failed, entered data is incorrect', 422, errors.array());
         }
-
+        
         const email = req.body.email;
         const password = req.body.password;
         
@@ -69,8 +69,12 @@ module.exports.postLogin = async (req, res, next) => {
             token: token,
             userId: user._id.toString()
         });
+
+        return;
     } catch (err) {
         next(errorUtils.handleError(err, 500, 'On postLogin when trying to findOne user'));
+        
+        return err;
     }
 }
 
