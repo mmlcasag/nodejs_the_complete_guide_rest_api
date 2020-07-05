@@ -43,6 +43,23 @@ describe('/controllers/user', function() {
                     .then(result => {
                         expect(res.statusCode).to.be.equal(200);
                         expect(res.userStatus).to.be.equal('I am new!');
+                        
+                        // after we are done with our test
+                        // we need to delete the user we just created
+                        // otherwise next time we run this test it will fail
+                        // because the user already exists in the database
+                        // therefore we will get a duplicate id eroor
+                        return User.deleteMany({})
+                    })
+                    .then(result => {
+                        // maybe you noticed that sometimes even though you are calling done()
+                        // you are stuck in execution mode and you need to type ctrl+c to quit
+                        // why?
+                        // because our database connection is still open
+                        // how to handle this?
+                        return mongoose.disconnect();
+                    })
+                    .then(result => {
                         done();
                     });
             })
