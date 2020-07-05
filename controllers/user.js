@@ -16,8 +16,12 @@ module.exports.getUserStatus = async (req, res, next) => {
             message: 'User data fetched successfully',
             status: user.status
         });
+
+        return;
     } catch (err) {
         errorUtils.handleError(err, 500, 'On getUserStatus at User.findById');
+
+        return err;
     }
 }
 

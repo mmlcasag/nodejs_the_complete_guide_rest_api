@@ -39,23 +39,4 @@ describe('/controllers/auth', function() {
         User.findOne.restore();
     });
 
-    it('should send a response with a valid user status for an existing user', function(done) {
-        mongoose.connect('mongodb+srv://admin:admin@mmlcasag-cvtew.mongodb.net/udemy-rest-api-test', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
-            .then(result => {
-                const user = new User({
-                    email: 'test@test.com',
-                    password: 'password123',
-                    name: 'test user',
-                    posts: []
-                });
-                return user.save();
-            })
-            .then(user => {
-                
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    });
-
 });
