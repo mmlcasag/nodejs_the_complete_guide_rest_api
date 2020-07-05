@@ -1,12 +1,11 @@
 const expect = require('chai').expect;
-const sinon = require('sinon');
 const mongoose = require('mongoose');
 
 const User = require('../models/user');
-const userController = require('../controllers/user');
+const feedController = require('../controllers/feed');
 
-describe('/controllers/user', function() {
-    
+describe('/controllers/feed', function() {
+
     // this runs before our tests
     // not before every test
     // but before all test cases inside this describe()
@@ -31,15 +30,15 @@ describe('/controllers/user', function() {
                 done();
             });
     });
-    
-    // this runs before every test case
-    beforeEach(function() {
-        console.log('before running the next test case');
-    });
 
-    it('should send a response with a valid user status for an existing user', function(done) {
+    it('should add a created post to the posts of the creator', function(done) {
         // creating a mock request object
         const req = {
+            body: {
+                title: 'My Dummy Post',
+                content: 'My Dummy Content',
+                imageUrl: '/images/my-dummy-image.jpg'
+            },
             userId: '5c0f66b979af55031b34728a'
         };
 
@@ -54,20 +53,15 @@ describe('/controllers/user', function() {
             json: function(data) {
                 this.userStatus = data.status;
             }
-        }
+        };
 
         // calling the function we want to test
-        userController.getUserStatus(req, res, () => {})
-            .then(result => {
-                expect(res.statusCode).to.be.equal(200);
-                expect(res.userStatus).to.be.equal('I am new!');
+        feedController.postPost(req, res, () => {})
+            .then(savedUser => {
+                expect(savedUser).to.have.property('posts');
+                expect(savedUser.posts).to.have.length(1);
                 done();
             });
-    });
-
-    // this runs after every test case
-    afterEach(function() {
-        console.log('after running the previous test case');
     });
 
     // after will run just after all your test cases

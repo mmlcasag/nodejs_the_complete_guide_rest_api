@@ -107,7 +107,7 @@ module.exports.postPost = async (req, res, next) => {
         
         user.posts.push(post);
 
-        await user.save();
+        const savedUser = await user.save();
         
         res.status(201).json({
             message: 'Post created successfully',
@@ -117,6 +117,9 @@ module.exports.postPost = async (req, res, next) => {
                 name: user.name
             }
         });
+
+        // for our tests
+        return savedUser;
     } catch (err) {
         next(errorUtils.handleError(err, 500, 'On postPost when trying to save a post'));
     }
